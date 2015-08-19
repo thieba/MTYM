@@ -6,11 +6,8 @@ using System.Threading.Tasks;
 
 namespace YardMaster
 {
-    class Program
+    public class Parser
     {
-        static void Main(string[] args)
-        {
 
-        }
     }
 }

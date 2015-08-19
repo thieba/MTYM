@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace YardMaster
 {
-    class Program
+    public class YardMaster
     {
-        static void Main(string[] args)
+        public YardMaster(string path)
         {
 
         }
