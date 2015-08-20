@@ -48,7 +48,7 @@ namespace YardMaster
 
         public int SpaceNeededForNext()
         {
-            return Cars.IndexOf(_letter) + 1;
+            return Cars.IndexOf(_letter);
         }
 
         public int CarsReady()

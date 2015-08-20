@@ -15,8 +15,10 @@ namespace YardMaster
 
     public class YardMaster
     {
+        #region attributes
         private List<YardLine> _lines;
         private BasicLine _trainLine;
+        #endregion
 
         public YardMaster(string path)
         {
@@ -59,7 +61,7 @@ namespace YardMaster
 
         private int BigestTrash()
         {
-            var index = -1;
+            int index = -1;
 
             for (int i = 0; i < 6; ++i)
             {
@@ -67,6 +69,59 @@ namespace YardMaster
                     index = i;
             }
             return index;
+        }
+
+        private int GetSmallestSpaceNeeded()
+        {
+            return _lines.Min(x => x.SpaceNeeded());
+/*            var smallest = _lines.Where(x => x.SpaceNeeded() == min && x.Index != 0 && x.Index != 5).ToList();
+
+            if (smallest.Count == 0)
+                smallest = _lines.Where(x => x.SpaceNeeded() == min).ToList();
+
+            return smallest.First().; INDEX */
+
+        }
+
+        private Stack<int> BacktrackingFullMoveList(int trashIndex, int spaceAvailable, Stack<int> stack)
+        {
+            var dump = new Stack<int>(stack);
+            for (int i = 0; i < 6; ++i)
+            {
+                if (i != trashIndex && !stack.Contains(i) && _lines[i].SpaceNeeded() <= spaceAvailable)
+                {
+                    dump.Push(i);
+                    var result = BacktrackingFullMoveList(trashIndex, spaceAvailable - _lines[i].SpaceNeeded(), dump);
+                    if (result.Sum(x => _lines[x].TrashCapacity()) > stack.Sum(x => _lines[x].TrashCapacity()))
+                        stack = new Stack<int>(result);
+                    dump.Pop();
+                }
+            }
+            return stack;
+        }
+
+        private void ProcessFullMoveList(int trashIndex)
+        {
+            var stack = new Stack<int>();
+            var listOfCommands = BacktrackingFullMoveList(trashIndex, _lines[trashIndex].SpaceAvailable(), stack);
+            foreach (var command in listOfCommands)
+            {
+                while (!_lines[command].IsTrash())
+                {
+                    _lines[command].Move(_lines[trashIndex], _lines[command].SpaceNeededForNext());
+                    CheckCarsReady();
+                }
+            }
+        }
+
+        private void GetTrash()
+        {
+            int index = BigestTrash();
+
+            if (index >= 0)
+            {
+                ProcessFullMoveList(index); //should be out
+            }
         }
 
         private void CheckCarsReady()
@@ -98,16 +153,28 @@ namespace YardMaster
             Console.WriteLine("----\n" + _trainLine.Cars.Length + "\n----\n");
         }
 
+        public bool IsResolved()
+        {
+            bool isResolved = true;
+            _lines.ForEach(x =>
+            {
+                if (!x.IsTrash())
+                    isResolved = false;
+            });
+            return isResolved;
+        }
+
         public bool Resolve()
         {
             Status();
-
-            CheckCarsReady(); // Test to remove
-
-            Status();
-            int index = BigestTrash();
-            Console.WriteLine(string.Format("The new trash is line {0} > with a capacity of {1}", index + 1, _lines[index].TrashCapacity()));
-            return false;
+            while (!IsResolved())
+            {
+                CheckCarsReady();
+                GetTrash();
+                //Status();
+            }
+            //Status();
+            return true;
         }
     }
 }
