@@ -15,8 +15,15 @@ namespace YardMaster
                 path = args[0];
             else
                 path = GetAFile();
-            var yardMaster = new YardMaster(path);
-            yardMaster.Resolve();
+            try
+            {
+                var yardMaster = new YardMaster(path);
+                yardMaster.Resolve();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("The process failed: {0}", e.Message.ToString());
+            }
         }
 
         static string GetAFile()

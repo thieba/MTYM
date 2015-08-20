@@ -25,8 +25,7 @@ namespace YardMaster
             _trainLine = new BasicLine();
             _lines = new List<YardLine>();
 
-            try
-            {
+
                 if (!File.Exists(path))
                     throw new FileNotFoundException(path + " is not found");
                 var c = GetLetter();
@@ -40,11 +39,7 @@ namespace YardMaster
                 }
                 if (_lines.Count() != 6)
                     throw new InvalidDataException("The input file doesn't provide 6 lines");
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("The process failed: {0}", e.ToString());
-            }
+
 
         }
 
@@ -137,20 +132,15 @@ namespace YardMaster
             }
         }
 
-        private void Status()
+        public void IsResolvable()
         {
-            Console.WriteLine("\n----");
+            var spaceSum = SpaceSum();
             foreach (var line in _lines)
             {
-                Console.WriteLine(string.Format("{0}, isATrash:{1}, TrashCapacity:{2}, MovementNeeded:{3}, SpaceNeeded:{4}, SpaceAvailable:{5}", 
-                    line.Cars, 
-                    line.IsTrash(), 
-                    line.TrashCapacity(), 
-                    line.MovementNeeded(), 
-                    line.SpaceNeeded(), 
-                    line.SpaceAvailable()));
+                if (!line.IsTrash() && (spaceSum - line.SpaceAvailable()) >= line.SpaceNeededForNext())
+                    return;
             }
-            Console.WriteLine("----\n" + _trainLine.Cars.Length + "\n----\n");
+            throw new InvalidDataException("There is no solution");
         }
 
         public bool IsResolved()
@@ -169,12 +159,32 @@ namespace YardMaster
             Status();
             while (!IsResolved())
             {
+                IsResolvable();
                 CheckCarsReady();
                 GetTrash();
                 //Status();
             }
-            //Status();
+            Status();
+            Console.WriteLine("Done");
             return true;
         }
+
+        #region helpers
+        private void Status()
+        {
+            Console.WriteLine("\n----");
+            foreach (var line in _lines)
+            {
+                Console.WriteLine(string.Format("{0}, isATrash:{1}, TrashCapacity:{2}, MovementNeeded:{3}, SpaceNeeded:{4}, SpaceAvailable:{5}",
+                    line.Cars,
+                    line.IsTrash(),
+                    line.TrashCapacity(),
+                    line.MovementNeeded(),
+                    line.SpaceNeeded(),
+                    line.SpaceAvailable()));
+            }
+            Console.WriteLine("----\n" + _trainLine.Cars.Length + "\n----\n");
+        }
+        #endregion
     }
 }
