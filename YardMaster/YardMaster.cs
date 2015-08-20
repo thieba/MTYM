@@ -20,6 +20,10 @@ namespace YardMaster
         private BasicLine _trainLine;
         #endregion
 
+        /// <summary>
+        /// CTOR
+        /// </summary>
+        /// <param name="path">path of the input file to use</param>
         public YardMaster(string path)
         {
             _trainLine = new BasicLine();
@@ -43,18 +47,30 @@ namespace YardMaster
 
         }
 
+        /// <summary>
+        /// Get the letter looking for
+        /// </summary>
+        /// <returns>the letter given</returns>
         private char GetLetter()
         {
             Console.WriteLine("Enter a car letter:");
             return Console.ReadKey().KeyChar;
         }
 
+        /// <summary>
+        /// Calculate the total space from all the lines
+        /// </summary>
+        /// <returns>return the number of spaces</returns>
         private int SpaceSum()
         {
             return _lines.Select(x => x.SpaceAvailable()).Sum();
         }
 
-        private int BigestTrash()
+        /// <summary>
+        /// Find the biggest trash to use
+        /// </summary>
+        /// <returns>index of the line found</returns>
+        private int BiggestTrash()
         {
             int index = -1;
 
@@ -66,11 +82,22 @@ namespace YardMaster
             return index;
         }
 
+        /// <summary>
+        /// Find the line which need the less space from the other lines to become a trash
+        /// </summary>
+        /// <returns>index of the line found</returns>
         private int GetSmallestSpaceNeeded()
         {
             return _lines.Min(x => x.SpaceNeeded());
         }
 
+        /// <summary>
+        /// Will backtrack the solutions to find the optimize line to pull
+        /// </summary>
+        /// <param name="trashIndex">index of the trash line</param>
+        /// <param name="spaceAvailable">space available in the trash line</param>
+        /// <param name="stack">stack of the used lines</param>
+        /// <returns></returns>
         private Stack<int> BacktrackingFullMoveList(int trashIndex, int spaceAvailable, Stack<int> stack)
         {
             var dump = new Stack<int>(stack);
@@ -88,6 +115,10 @@ namespace YardMaster
             return stack;
         }
 
+        /// <summary>
+        /// Will find the optimize solution to transform the maximum line to trash using a trash line
+        /// </summary>
+        /// <param name="trashIndex">index of the trash line</param>
         private void ProcessFullMoveList(int trashIndex)
         {
             var stack = new Stack<int>();
@@ -102,6 +133,10 @@ namespace YardMaster
             }
         }
 
+        /// <summary>
+        /// Find a line where we can get all the asked cars
+        /// </summary>
+        /// <returns>return the index of the car line</returns>
         private int FindLineToPullToTrash()
         {
             int index = -1;
@@ -116,6 +151,10 @@ namespace YardMaster
             return index;
         }
 
+        /// <summary>
+        /// Find the most optimized line to get the next car from
+        /// </summary>
+        /// <returns>return the index of the car line</returns>
         private int FindLineToPullToDistribution()
         {
             int spaceAvailable = SpaceSum();
@@ -123,6 +162,10 @@ namespace YardMaster
                              .OrderBy(x => x.CarsCount()).OrderBy(x => x.SpaceNeededForNext()).First().Index;
         }
 
+        /// <summary>
+        /// Will distribute all the cars from a line until there's no more car asked in the line
+        /// </summary>
+        /// <param name="index">index of the line where get the asked car</param>
         private void DistributeToTrash(int index)
         {
             while (!_lines[index].IsTrash())
@@ -132,6 +175,10 @@ namespace YardMaster
 #endif
         }
 
+        /// <summary>
+        /// Distribute the top cars from a line to the others in order to access to an asked car
+        /// </summary>
+        /// <param name="index">index of the line where get the asked car</param>
         private void Distribute(int index)
         {
             int spaceToFill = _lines[index].SpaceNeededForNext();
@@ -160,9 +207,12 @@ namespace YardMaster
             }
         }
 
+        /// <summary>
+        /// Will find the best opportunity to get a asked car and will process the moves
+        /// </summary>
         private void Process()
         {
-            int index = BigestTrash();
+            int index = BiggestTrash();
 
             if (index >= 0)
                 ProcessFullMoveList(index);
@@ -177,6 +227,9 @@ namespace YardMaster
             }
         }
 
+        /// <summary>
+        /// Check if there is cars ready to pull from the left
+        /// </summary>
         private void CheckCarsReady()
         {
             int nbCarsReady = 0;
@@ -190,6 +243,9 @@ namespace YardMaster
             }
         }
 
+        /// <summary>
+        /// Check if the yard is resolvable
+        /// </summary>
         public void IsResolvable()
         {
             var spaceSum = SpaceSum();
@@ -201,6 +257,10 @@ namespace YardMaster
             throw new InvalidDataException("There is no solution");
         }
 
+        /// <summary>
+        /// Check if the yard is resolved
+        /// </summary>
+        /// <returns></returns>
         public bool IsResolved()
         {
             bool isResolved = true;
@@ -212,7 +272,11 @@ namespace YardMaster
             return isResolved;
         }
 
-        public bool Resolve()
+
+        /// <summary>
+        /// Resolve the yard test
+        /// </summary>
+        public void Resolve()
         {
 #if DEBUG
             Status();
@@ -227,10 +291,12 @@ namespace YardMaster
             Status();
 #endif
             Console.WriteLine("Done");
-            return true;
         }
 
         #region helpers
+        /// <summary>
+        /// Give the status of the lines
+        /// </summary>
         private void Status()
         {
             Console.WriteLine("\n----");

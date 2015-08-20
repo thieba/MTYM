@@ -27,6 +27,10 @@ namespace YardMaster
             Console.ReadKey();
         }
 
+        /// <summary>
+        /// Ask for a input file path
+        /// </summary>
+        /// <returns>the path given</returns>
         static string GetAFile()
         {
             Console.WriteLine("Enter a input file:");
