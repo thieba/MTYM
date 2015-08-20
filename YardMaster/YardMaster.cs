@@ -27,7 +27,7 @@ namespace YardMaster
             {
                 if (!File.Exists(path))
                     throw new FileNotFoundException(path + " is not found");
-                var c = GetALetter();
+                var c = GetLetter();
                 int index = 0;
                 using (StreamReader sr = new StreamReader(path))
                 {
@@ -46,7 +46,7 @@ namespace YardMaster
 
         }
 
-        private char GetALetter()
+        private char GetLetter()
         {
             Console.WriteLine("Enter a car letter:");
             return Console.ReadKey().KeyChar;
@@ -87,7 +87,13 @@ namespace YardMaster
             Console.WriteLine("\n----");
             foreach (var line in _lines)
             {
-                Console.WriteLine(string.Format("{0}, isATrash:{1}, TrashCapacity:{2}, MovementNeeded:{3}, SpaceNeeded:{4}, SpaceAvailable:{5}", line.Cars, line.IsTrash(), line.TrashCapacity(), line.MovementNeeded(), line.SpaceNeeded(), line.SpaceAvailable()));
+                Console.WriteLine(string.Format("{0}, isATrash:{1}, TrashCapacity:{2}, MovementNeeded:{3}, SpaceNeeded:{4}, SpaceAvailable:{5}", 
+                    line.Cars, 
+                    line.IsTrash(), 
+                    line.TrashCapacity(), 
+                    line.MovementNeeded(), 
+                    line.SpaceNeeded(), 
+                    line.SpaceAvailable()));
             }
             Console.WriteLine("----\n" + _trainLine.Cars.Length + "\n----\n");
         }
@@ -96,7 +102,7 @@ namespace YardMaster
         {
             Status();
 
-            CheckCarsReady(); // Test to move
+            CheckCarsReady(); // Test to remove
 
             Status();
             int index = BigestTrash();

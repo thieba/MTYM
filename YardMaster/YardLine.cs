@@ -13,7 +13,7 @@ namespace YardMaster
         #endregion
 
         #region constructors
-        public YardLine(char letter, string cars, int index) :
+        public YardLine(char letter, string cars, int index):
             base(cars, index)
         {
             _letter = letter;
@@ -40,8 +40,8 @@ namespace YardMaster
 
         public int SpaceNeeded()
         {
-            int index = Cars.LastIndexOf(_letter) + 1;
-            if (index == 0)
+            int index = Cars.LastIndexOf(_letter);
+            if (index < 0)
                 return 0;
             return Cars.Remove(index).Replace(_letter.ToString(), "").Length;
         }
