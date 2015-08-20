@@ -24,6 +24,7 @@ namespace YardMaster
             {
                 Console.WriteLine("The process failed: {0}", e.Message.ToString());
             }
+            Console.ReadKey();
         }
 
         static string GetAFile()

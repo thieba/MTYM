@@ -69,13 +69,6 @@ namespace YardMaster
         private int GetSmallestSpaceNeeded()
         {
             return _lines.Min(x => x.SpaceNeeded());
-/*            var smallest = _lines.Where(x => x.SpaceNeeded() == min && x.Index != 0 && x.Index != 5).ToList();
-
-            if (smallest.Count == 0)
-                smallest = _lines.Where(x => x.SpaceNeeded() == min).ToList();
-
-            return smallest.First().; INDEX */
-
         }
 
         private Stack<int> BacktrackingFullMoveList(int trashIndex, int spaceAvailable, Stack<int> stack)
@@ -109,13 +102,78 @@ namespace YardMaster
             }
         }
 
-        private void GetTrash()
+        private int FindLineToPullToTrash()
+        {
+            int index = -1;
+            int spaceAvailable = SpaceSum();
+
+            foreach (var line in _lines)
+            {
+                if ((line.SpaceNeeded() <= (spaceAvailable - line.SpaceAvailable())) && 
+                    (index < 0 || _lines[index].TrashCapacity() < line.TrashCapacity()))
+                    index = line.Index;
+            }
+            return index;
+        }
+
+        private int FindLineToPullToDistribution()
+        {
+            int spaceAvailable = SpaceSum();
+            return _lines.Where(x => x.SpaceNeededForNext() <= (spaceAvailable - x.SpaceAvailable()))
+                             .OrderBy(x => x.CarsCount()).OrderBy(x => x.SpaceNeededForNext()).First().Index;
+        }
+
+        private void DistributeToTrash(int index)
+        {
+            while (!_lines[index].IsTrash())
+                Distribute(index);
+#if DEBUG
+            Status();
+#endif
+        }
+
+        private void Distribute(int index)
+        {
+            int spaceToFill = _lines[index].SpaceNeededForNext();
+            int nbGCars = _lines[index].CarsCount();
+
+            while (nbGCars == _lines[index].CarsCount())
+            {
+                var linesToPush = _lines.Where(x => x.Index != index && x.SpaceAvailable() != 0)
+                                        .OrderBy(x => 10 - x.SpaceNeededForNext())
+                                        .OrderBy(x => (x.SpaceNeededForNext() + Math.Max(spaceToFill, 3)) % 3).ToList();
+                for (int i = 0, s = Math.Min(3, spaceToFill); s > 0;)
+                {
+                    if (linesToPush[i].SpaceAvailable() >= s)
+                    {
+                        spaceToFill -= s;
+                        _lines[index].Move(_lines[linesToPush[i].Index], s);
+                        CheckCarsReady();
+                        break;
+                    }
+                    if (i++ >= linesToPush.Count)
+                    {
+                        i = i % linesToPush.Count;
+                        s--;
+                    }
+                }
+            }
+        }
+
+        private void Process()
         {
             int index = BigestTrash();
 
             if (index >= 0)
+                ProcessFullMoveList(index);
+            else
             {
-                ProcessFullMoveList(index); //should be out
+                index = FindLineToPullToTrash();
+
+                if (index >= 0)
+                    DistributeToTrash(index);
+                else
+                    Distribute(FindLineToPullToDistribution());
             }
         }
 
@@ -156,15 +214,18 @@ namespace YardMaster
 
         public bool Resolve()
         {
+#if DEBUG
             Status();
+#endif
             while (!IsResolved())
             {
                 IsResolvable();
                 CheckCarsReady();
-                GetTrash();
-                //Status();
+                Process();
             }
+#if DEBUG
             Status();
+#endif
             Console.WriteLine("Done");
             return true;
         }

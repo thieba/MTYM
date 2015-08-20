@@ -38,6 +38,11 @@ namespace YardMaster
             return 10 - (Cars.Length - index);
         }
 
+        public int CarsCount()
+        {
+            return Cars.Count(x => x == _letter);
+        }
+
         public int SpaceNeeded()
         {
             int index = Cars.LastIndexOf(_letter);
