@@ -25,6 +25,11 @@ namespace YardMaster
             return Cars.IndexOf(_letter) == -1;
         }
 
+        public int SpaceAvailable()
+        {
+            return 10 - Cars.Length;
+        }
+
         public int TrashCapacity()
         {
             int index = Cars.LastIndexOf(_letter) + 1;
@@ -40,7 +45,12 @@ namespace YardMaster
                 return 0;
             return Cars.Remove(index).Replace(_letter.ToString(), "").Length;
         }
-        
+
+        public int SpaceNeededForNext()
+        {
+            return Cars.IndexOf(_letter) + 1;
+        }
+
         public int MovementNeeded()
         {
             var count = 0;

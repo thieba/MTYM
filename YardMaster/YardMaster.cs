@@ -7,6 +7,11 @@ using System.Threading.Tasks;
 
 namespace YardMaster
 {
+    /// <summary>
+    /// Algo : will try to find a trash fitting the space needed by an other (biggest or biggest sum of multiples lines)
+    /// If not, will find the bigest space available
+    /// </summary>
+
     public class YardMaster
     {
         private List<YardLine> _lines;
