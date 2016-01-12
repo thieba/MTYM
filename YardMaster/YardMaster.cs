@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using YardMaster.Helpers;
 
 namespace YardMaster
 {
@@ -18,6 +19,32 @@ namespace YardMaster
         #region attributes
         private List<YardLine> _lines;
         private BasicLine _trainLine;
+        #endregion
+
+        #region properties
+        public List<YardLine> Lines
+        {
+            get
+            {
+                return _lines;
+            }
+            set
+            {
+                _lines = value;
+            }
+        }
+
+        public BasicLine TrainLine
+        {
+            get
+            {
+                return _trainLine;
+            }
+            set
+            {
+                _trainLine = value;
+            }
+        }
         #endregion
 
         /// <summary>
@@ -43,9 +70,33 @@ namespace YardMaster
                 }
                 if (_lines.Count() != 6)
                     throw new InvalidDataException("The input file doesn't provide 6 lines");
-
-
         }
+
+        /// <summary>
+        /// CTOR No blocking
+        /// </summary>
+        /// <param name="path">path of the input file to use</param>
+        /// <param name="c">car to find</param>
+        public YardMaster(string path, char c)
+        {
+            _trainLine = new BasicLine();
+            _lines = new List<YardLine>();
+
+
+            if (!File.Exists(path))
+                throw new FileNotFoundException(path + " is not found");
+            int index = 0;
+            using (StreamReader sr = new StreamReader(path))
+            {
+                while (sr.Peek() >= 0)
+                {
+                    _lines.Add(new YardLine(c, sr.ReadLine(), index++));
+                }
+            }
+            if (_lines.Count() != 6)
+                throw new InvalidDataException("The input file doesn't provide 6 lines");
+        }
+
 
         /// <summary>
         /// Get the letter looking for
@@ -171,7 +222,7 @@ namespace YardMaster
             while (!_lines[index].IsTrash())
                 Distribute(index);
 #if DEBUG
-            Status();
+            YardHelper.Status(this);
 #endif
         }
 
@@ -279,7 +330,7 @@ namespace YardMaster
         public void Resolve()
         {
 #if DEBUG
-            Status();
+            YardHelper.Status(this);
 #endif
             while (!IsResolved())
             {
@@ -288,30 +339,9 @@ namespace YardMaster
                 Process();
             }
 #if DEBUG
-            Status();
+            YardHelper.Status(this);
 #endif
             Console.WriteLine("Done");
         }
-
-        #region helpers
-        /// <summary>
-        /// Give the status of the lines
-        /// </summary>
-        private void Status()
-        {
-            Console.WriteLine("\n----");
-            foreach (var line in _lines)
-            {
-                Console.WriteLine(string.Format("{0}, isATrash:{1}, TrashCapacity:{2}, MovementNeeded:{3}, SpaceNeeded:{4}, SpaceAvailable:{5}",
-                    line.Cars,
-                    line.IsTrash(),
-                    line.TrashCapacity(),
-                    line.MovementNeeded(),
-                    line.SpaceNeeded(),
-                    line.SpaceAvailable()));
-            }
-            Console.WriteLine("----\n" + _trainLine.Cars.Length + "\n----\n");
-        }
-        #endregion
     }
 }
